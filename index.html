@@ -138,6 +138,225 @@ footer{
 
 </body>
 </html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ravi Subway Runner</title>
+
+<style>
+
+body{
+margin:0;
+overflow:hidden;
+background:black;
+}
+
+canvas{
+display:block;
+margin:auto;
+background:#000;
+}
+
+#jumpBtn{
+position:fixed;
+bottom:30px;
+right:30px;
+padding:20px;
+font-size:20px;
+background:red;
+color:white;
+border:none;
+border-radius:50%;
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="game" width="800" height="400"></canvas>
+
+<button id="jumpBtn">JUMP</button>
+
+<script>
+
+let canvas=document.getElementById("game")
+let ctx=canvas.getContext("2d")
+
+// images
+let playerImg=new Image()
+playerImg.src="https://i.imgur.com/6X12F6B.png"
+
+let trainImg=new Image()
+trainImg.src="https://i.imgur.com/3Wb7R9K.png"
+
+let coinImg=new Image()
+coinImg.src="https://i.imgur.com/M5bK7Qp.png"
+
+let bgImg=new Image()
+bgImg.src="https://i.imgur.com/dM7Thhn.jpg"
+
+// sound
+let coinSound=new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg")
+
+let player={
+x:100,
+y:280,
+width:50,
+height:50,
+vy:0,
+jump:false
+}
+
+let gravity=0.6
+let obstacles=[]
+let coins=[]
+let score=0
+
+function jump(){
+if(!player.jump){
+player.vy=-12
+player.jump=true
+}
+}
+
+document.addEventListener("keydown",e=>{
+if(e.code==="Space") jump()
+})
+
+document.getElementById("jumpBtn").onclick=jump
+
+// spawn train
+setInterval(()=>{
+
+obstacles.push({
+x:800,
+y:290,
+width:80,
+height:70
+})
+
+},2000)
+
+// spawn coin
+setInterval(()=>{
+
+coins.push({
+x:800,
+y:Math.random()*250+50,
+size:30
+})
+
+},1500)
+
+function update(){
+
+player.vy+=gravity
+player.y+=player.vy
+
+if(player.y>=280){
+player.y=280
+player.jump=false
+}
+
+// trains
+for(let i=0;i<obstacles.length;i++){
+
+obstacles[i].x-=6
+
+if(player.x < obstacles[i].x+80 &&
+player.x+50 > obstacles[i].x &&
+player.y < obstacles[i].y+70 &&
+player.y+50 > obstacles[i].y){
+
+alert("Game Over Score: "+score)
+location.reload()
+
+}
+
+}
+
+// coins
+for(let i=0;i<coins.length;i++){
+
+coins[i].x-=6
+
+if(player.x < coins[i].x+30 &&
+player.x+50 > coins[i].x &&
+player.y < coins[i].y+30 &&
+player.y+50 > coins[i].y){
+
+score+=5
+coinSound.play()
+coins.splice(i,1)
+
+}
+
+}
+
+}
+
+function draw(){
+
+ctx.drawImage(bgImg,0,0,800,400)
+
+ctx.drawImage(
+playerImg,
+player.x,
+player.y,
+player.width,
+player.height
+)
+
+// trains
+for(let i=0;i<obstacles.length;i++){
+
+ctx.drawImage(
+trainImg,
+obstacles[i].x,
+obstacles[i].y,
+80,
+70
+)
+
+}
+
+// coins
+for(let i=0;i<coins.length;i++){
+
+ctx.drawImage(
+coinImg,
+coins[i].x,
+coins[i].y,
+30,
+30
+)
+
+}
+
+ctx.fillStyle="white"
+ctx.font="20px Arial"
+ctx.fillText("Score: "+score,10,30)
+
+}
+
+function gameLoop(){
+
+update()
+draw()
+
+requestAnimationFrame(gameLoop)
+
+}
+
+gameLoop()
+
+</script>
+
+</body>
+</html>
+
 
 
 
